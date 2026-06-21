@@ -13,7 +13,7 @@ CHAT_ID = os.environ["CHAT_ID"]
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 
 # ชื่อไฟลคลิป ที่อยู่ในโปรเจกต์เดียวกัน
-VIDEO_FILE = "clip.mp4"
+VIDEO_FILE = "clip.mp4.MP4"
 # เวลารอ (วินาที) ระหว่างสงคลิป กับส่งข้อความสัญญาณ
 DELAY_SECONDS = 5
 
