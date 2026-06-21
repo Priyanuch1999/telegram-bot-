@@ -8,6 +8,7 @@ from telegram import Bot
 from telegram.request import HTTPXRequest
 
 
+
 # ===== ตั้งค่า (อ่านจาก Environment Variables ใน Railway) =====
 TOKEN = os.environ["TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
@@ -20,6 +21,7 @@ VIDEO_FILE = "clip.mp4.MP4"
 DELAY_SECONDS = 5
 
 bot = Bot(token=TOKEN, request=HTTPXRequest(read_timeout=60, connect_timeout=60))
+
 
 tz = pytz.timezone("Asia/Bangkok")
 app = Flask(__name__)
