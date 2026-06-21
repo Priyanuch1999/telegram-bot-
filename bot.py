@@ -1,37 +1,43 @@
+import os
 import asyncio
-from datetime import datetime
-import pytz
+from flask import Flask, request
 from telegram import Bot
 
-TOKEN = "8813095334:AAHCdDkJbRxFvQPq539SWkw7-1q6jyvN3tc"
-CHAT_ID = "-5264765115"
+TOKEN = os.environ["TOKEN"]
+CHAT_ID = os.environ["CHAT_ID"]
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
+
+VIDEO_FILE = "clip.mp4"
+DELAY_SECONDS = 5
 
 bot = Bot(token=TOKEN)
-tz = pytz.timezone("Asia/Bangkok")
+app = Flask(__name__)
 
-async def send_message(text):
-    await bot.send_message(chat_id=CHAT_ID, text=text)
 
-async def scheduler():
-    sent_morning = False
-    sent_night = False
-    
-    while True:
-        now = datetime.now(tz)
-        hour = now.hour
-        minute = now.minute
+async def send_signal(message_text):
+    with open(VIDEO_FILE, "rb") as video:
+        await bot.send_video(chat_id=CHAT_ID, video=video)
+    await asyncio.sleep(DELAY_SECONDS)
+    await bot.send_message(chat_id=CHAT_ID, text=message_text)
 
-        if hour == 5 and minute == 0 and not sent_morning:
-            await send_message("━━━━━━━━━━━━━━━\n🌅 GOOD MORNING | อรุณสวัสดิ์\n━━━━━━━━━━━━━━━\n🧠 No plan, No trade\n💰 Manage your risk first\n🎯 Trade the system, not emotions\n━━━━━━━━━━━━━━━\nGood Luck Today! 🍀")
-            sent_morning = True
-            sent_night = False
 
-        elif hour == 0 and minute == 0 and not sent_night:
-            await send_message("━━━━━━━━━━━━━━━\n🌙 GOOD NIGHT | ราตรีสวัสดิ์\n━━━━━━━━━━━━━━━\n📖 Review your trades today\n💤 Rest well, stay sharp tomorrow\n🎯 Markets will always be there\n━━━━━━━━━━━━━━━\nSee You Tomorrow! 💪")
-            sent_night = True
-            sent_morning = False
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    if WEBHOOK_SECRET:
+        if request.headers.get("X-Secret") != WEBHOOK_SECRET:
+            return "unauthorized", 401
+    message_text = request.get_data(as_text=True)
+    if not message_text.strip():
+        return "empty", 400
+    asyncio.run(send_signal(message_text))
+    return "ok", 200
 
-        await asyncio.sleep(30)
+
+@app.route("/", methods=["GET"])
+def home():
+    return "Bot is running", 200
+
 
 if __name__ == "__main__":
-    asyncio.run(scheduler())
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
