@@ -5,6 +5,8 @@ from datetime import datetime
 import pytz
 from flask import Flask, request
 from telegram import Bot
+from telegram.request import HTTPXRequest
+
 
 # ===== ตั้งค่า (อ่านจาก Environment Variables ใน Railway) =====
 TOKEN = os.environ["TOKEN"]
@@ -17,7 +19,8 @@ VIDEO_FILE = "clip.mp4.MP4"
 # เวลารอ (วินาที) ระหว่างสงคลิป กับส่งข้อความสัญญาณ
 DELAY_SECONDS = 5
 
-bot = Bot(token=TOKEN)
+bot = Bot(token=TOKEN, request=HTTPXRequest(read_timeout=60, connect_timeout=60))
+
 tz = pytz.timezone("Asia/Bangkok")
 app = Flask(__name__)
 
