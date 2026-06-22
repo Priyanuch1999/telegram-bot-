@@ -40,7 +40,8 @@ async def send_signal(message_text):
 @app.route("/webhook", methods=["POST"])
 def webhook():
     if WEBHOOK_SECRET:
-        if request.headers.get("X-Secret") != WEBHOOK_SECRET:
+        provided = request.headers.get("X-Secret") or request.args.get("secret", "")
+        if provided != WEBHOOK_SECRET:
             return "unauthorized", 401
     raw = request.get_data(as_text=True)
     try:
